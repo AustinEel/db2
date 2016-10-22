@@ -1,7 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head></head>
-<body>
+<head>
+  <meta charset="utf-8" />
+  <title>EQ</title>
+  <script id="locations-template" type="text/x-handlebars-template">
+    <table class="table table-hover">
+      <tr>
+        <th>
+          Magnitude
+        </th>
+        <th>
+          Place
+        </th>
+      </tr>
+        {{#each features}}
+        <tr>
+          <td>
+            {{this.properties.mag}}
+          </td>
+          <td>
+            {{this.properties.place}}
+          </td>
+        </tr>
+        {{/each}}
+    </table>
+  </script>
+  <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 2,
+          center: new google.maps.LatLng(2.8,-187.3),
+          mapTypeId: 'terrain'
+        });
+        map.data.loadGeoJson('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson');
+        // Create a <script> tag and set the USGS URL as the source.
+        var script = document.createElement('script');
+        // This example uses a local copy of the GeoJSON stored at
+        // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
+        script.src = 'http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson';
+        document.getElementsByTagName('head')[0].appendChild(script);
+      }
 
+      // Loop through the results array and place a marker for each
+      // set of coordinates.
+      window.eqfeed_callback = function(data) {
+        for (var i = 0; i < data.features.length; i++) {
+          var coords = data.features[i].geometry.coordinates;
+          var latLng = new google.maps.LatLng(coords[1],coords[0]);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            map: map
+          });
+        }
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWqD-qimxZr_bhJgMErl0qlIScKHtuAnw&callback=initMap">
+    </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+  <script src="main.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+  <nav class="navbar navbar-default navbar-fixed-top" class="col-sm-12">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">
+          <img alt="uSGS" src="https://lh5.ggpht.com/DqX092o9m9o7lIyR_qMA13Jwnb6MfDcb_-WrhN_oJJitsaeu03Ab0DVaRzbSxIuPkzWz=w300" style="width: 30px; height: 30px;">
+        </a>
+      </div>
+      <h3 class="navbar-text">USGS Earthquake Data</h3>
+    </div>
+  </nav>
+  <body style="padding:50px">
+  <div class="col-sm-6" id="eqdata">
+  </div>
+  <div class="col-sm-6" id="map"></div>
 </body>
 </html>
